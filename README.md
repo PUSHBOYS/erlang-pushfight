@@ -29,7 +29,27 @@ We label the board in a manner inspired from Chess's algebraic notation:
 ```
 
 Where rows are numbered from `1` to `8` starting from the bottom, and ranks
-are `a` to `d` left to right.
+are `a` to `d` left to right. For example, moving a piece from the bottom to
+the top on the leftmost row is notated as `a3 a7`.
 
-For example, moving a piece from the bottom to the top on the leftmost
-row is notated as `a3 a7`.
+
+We extend this notation for void squares, where pieces may fall:
+
+```
+   a b c d
+9   ┏ ┳ ┓   9
+8 ┏ ╃─╀─╄ ┓ 8
+  ╓─┼─┼─┤ ┫
+  ╟─┼─┼─┼─╖
+  ╟─┼─┼─┼─╢
+  ╟─┼─┼─┼─╢
+  ╟─┼─┼─┼─╢
+  ╙─┼─┼─┼─╢
+  ┣ ┽─┼─┼─╜
+1 ┗ ╅─╁─╆ ┛ 1
+0   ┗ ┻ ┛   0
+   a b c d
+```
+
+For example, we can a player loses because their piece was pushed into
+position `b0`.

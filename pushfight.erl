@@ -1,5 +1,8 @@
 -module(pushfight).
--export([start/0, loop/1]).
+-export([start/0, init/1]).
+
+-type piece() :: empty | square | round | anchor.
+-record(position, {valid::boolean(), status::piece()}).
 
 % echo_server specific code
 start() ->
