@@ -1,5 +1,5 @@
 % 20bits.com/article/erlang-a-generalized-tcp-server
--module(pushfight_server).
+-module(socket_server).
 -behavior(gen_server).
 -export([init/1,
          handle_call/3,
