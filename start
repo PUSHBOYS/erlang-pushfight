@@ -1,0 +1,26 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -smp enable -sname pfs -mnesia debug verbose
+-mode(compile).
+
+main([String]) ->
+    try
+        Port = list_to_integer(String),
+        io:format("Starting pushfight server on port ~w~n", [Port]),
+        pushfight:start(Port),
+        receive
+            unpause ->
+                ok
+        end
+    catch
+        _:_ ->
+            usage()
+    end;
+main([])->
+    main(["4242"]);
+main(_) ->
+    usage().
+
+usage() ->
+    io:format("usage: ./pfs [port=7000]\n"),
+    halt(1).

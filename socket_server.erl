@@ -1,20 +1,19 @@
-% 20bits.com/article/erlang-a-generalized-tcp-server
 -module(socket_server).
+-author('Jesse E.I. Farmer').
 -behavior(gen_server).
+
 -export([init/1,
+         code_change/3,
          handle_call/3,
          handle_cast/2,
          handle_info/2,
-         terminate/2,
-         code_change/3]).
+         terminate/2]).
 -export([accept_loop/1]).
 -export([start/3]).
 
--define(TCP_OPTIONS,
-        [binary, {packet, 0}, {active, false}, {reuseaddr, true}]).
+-define(TCP_OPTIONS, [binary, {packet, 0}, {active, false}, {reuseaddr, true}]).
 
--record(server_state,
-        {port, loop, ip=any, lsocket=null}).
+-record(server_state, {port, loop, ip=any, lsocket=null}).
 
 
 start(Name, Port, Loop) ->
@@ -25,7 +24,7 @@ start(Name, Port, Loop) ->
 init(State = #server_state{port=Port}) ->
     case gen_tcp:listen(Port, ?TCP_OPTIONS) of
         {ok, LSocket} ->
-            NewState = State#server_state{lsocket=LSocket},
+            NewState = State#server_state{lsocket = LSocket},
             {ok, accept(NewState)};
         {error, Reason} ->
             {stop, Reason}
@@ -37,17 +36,16 @@ handle_cast({accepted, _Pid}, State=#server_state{}) ->
 
 
 accept_loop({Server, LSocket, {M, F}}) ->
-	{ok, Socket} = gen_tcp:accept(LSocket),
-	% Let the server spawn a new process and replace this loop
-	% with the echo loop, to avoid blocking 
-	gen_server:cast(Server, {accepted, self()}),
-	M:F(Socket).
+    {ok, Socket} = gen_tcp:accept(LSocket),
+    % Let the server spawn a new process and replace this loop
+    gen_server:cast(Server, {accepted, self()}),
+    M:F(Socket).
 
 
 % To be more robust we should be using spawn_link and trapping exits
 accept(State = #server_state{lsocket=LSocket, loop=Loop}) ->
-	proc_lib:spawn(?MODULE, accept_loop, [{self(), LSocket, Loop}]),
-	State.
+    proc_lib:spawn(?MODULE, accept_loop, [{self(), LSocket, Loop}]),
+    State.
 
 
 handle_call(_Msg, _Caller, State) -> {noreply, State}.
