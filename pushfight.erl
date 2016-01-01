@@ -20,9 +20,9 @@
                 anchored=false::boolean()}).
 
 % reference board
-%    a b c d 
+%    a b c d
 % 9   ┏ ┳ ┓
-% 8 ┏ ╃─╀─╄ ┓ 9 
+% 8 ┏ ╃─╀─╄ ┓ 9
 % 7 ╓─┼─┼─┤ ┫ 8
 % 6 ╟─┼─┼─┼─╖ 7
 % 5 ╟─┼─┼─┼─╢ 6
@@ -30,8 +30,8 @@
 % 3 ╟─┼─┼─┼─╢ 4
 % 2 ╙─┼─┼─┼─╢ 3
 % 1 ┣ ┽─┼─┼─╜ 2
-% 0 ┗ ╅─╁─╆ ┛ 1 
-%     ┗ ┻ ┛   0   
+% 0 ┗ ╅─╁─╆ ┛ 1
+%     ┗ ┻ ┛   0
 %    a b c d
 
 
@@ -139,4 +139,22 @@ play(Command, {Winner, Turn, Pieces}) ->
 
 
 check_winner(_Pieces) ->
-    null. % TODO: check tiles for loser
+    Positions = [Piece#piece.position || Piece <- Pieces],
+    Off_pieces = [Piece || Piece <- Positions, Positions == a1 orelse
+                                                Positions == a2 orelse
+                                                Positions == b0 orelse
+                                                Positions == c0 orelse
+                                                Positions == d1 orelse
+                                                Positions == d2 orelse
+                                                Positions == a8 orelse
+                                                Positions == a9 orelse
+                                                Positions == b9 orelse
+                                                Positions == c9 orelse
+                                                Positions == d7 orelse
+                                                Positions == d8],
+    case Off_pieces of
+        [] ->
+            null;
+        [Off_piece] ->
+            Off_piece#piece.player
+    end.
