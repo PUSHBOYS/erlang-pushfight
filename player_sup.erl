@@ -1,0 +1,2 @@
+-module(player_sup).
+-behavior(supervisor).

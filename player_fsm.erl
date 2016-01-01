@@ -1,0 +1,2 @@
+-module(player_fsm).
+-behavior(gen_fsm).
