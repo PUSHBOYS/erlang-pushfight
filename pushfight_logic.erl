@@ -1,5 +1,5 @@
 -module(pushfight_logic).
--export([start/0]).
+-export([init/2]).
 
 -type player() :: player1 | player2 | null.
 -type token() :: square | round.
@@ -7,13 +7,32 @@
                 type::token(),
                 anchored=false::boolean()}).
 
-start() ->
-    KeyValueList = [{a1, off}, {b1, empty}, {c1, empty}, {d1, off},
-                    {a2, off}, {b2, #piece{player=player1,type=square}}, {c2, empty}, {d2, empty},
-                    {a3, empty}, {b3, #piece{player=player2,type=round}}, {c3, empty}, {d3, empty},
-                    {a4, empty}, {b4, empty}, {c4, empty}, {d4, empty}],
-    StateDict = orddict:from_list(KeyValueList),
-    ok.
+init(Player1, Player2) ->
+    spawn(fun() -> pre_game_setup(Player1, Player2) end).
 
-move(State, Pos1, Pos2) ->
-    ok.
+pre_game_setup(Player1, Player2) ->
+    Player1 ! {self(), pre_game},
+    Player2 ! {self(), pre_game},
+    receive
+        {Player1, State1} ->
+            ok
+        {Player2, State2} ->
+            ok;
+    end,
+    New_state = State1 ++ State2,
+    loop(New_state, 0, Player1, Player2).
+
+loop(State, Turn, Player1, Player2) ->
+    if
+        Turn mod 2 == 1 ->
+            Player1 ! {self(), notify}
+        _Else ->
+            Player2 ! {self(), notify};
+    end,
+    receive
+        {Player1, New_state} ->
+            ok
+        {Player2, New_state} ->
+            ok;
+    end,
+    loop(New_state, Turn+1, Player1, Player2).
