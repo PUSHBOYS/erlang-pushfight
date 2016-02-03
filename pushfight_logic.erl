@@ -8,31 +8,41 @@
                 anchored=false::boolean()}).
 
 init(Player1, Player2) ->
-    spawn(fun() -> pre_game_setup(Player1, Player2) end).
-
-pre_game_setup(Player1, Player2) ->
-    Player1 ! {self(), pre_game},
-    Player2 ! {self(), pre_game},
+    Pid1 = spawn_link(fun() -> pre_game(Player1, self()) end),
+    Pid2 = spawn_link(fun() -> pre_game(Player2, self()) end),
     receive
-        {Player1, State1} ->
-            ok
-        {Player2, State2} ->
-            ok;
+        {Pid1, State1} ->
+            receive
+                {Pid2, State2} ->
+                    ok
+            end;
+        {Pid2, State2} ->
+            receive
+                {Pid1, State1} ->
+                    ok
+            end
     end,
-    New_state = State1 ++ State2,
-    loop(New_state, 0, Player1, Player2).
+    loop(State1++State2, 0, Player1, Player2).
+
+pre_game(Player, Parent) ->
+    Player ! {self(), notify},
+    receive
+        {Player, State} ->
+            Parent ! State
+    end,
+    exit(normal).
 
 loop(State, Turn, Player1, Player2) ->
     if
-        Turn mod 2 == 1 ->
-            Player1 ! {self(), notify}
-        _Else ->
-            Player2 ! {self(), notify};
+        Turn rem 2 == 1 ->
+            Player1 ! {self(), notify};
+        Turn rem 2 == 0 ->
+            Player2 ! {self(), notify}
     end,
     receive
         {Player1, New_state} ->
-            ok
-        {Player2, New_state} ->
             ok;
+        {Player2, New_state} ->
+            ok
     end,
     loop(New_state, Turn+1, Player1, Player2).
